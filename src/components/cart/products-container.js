@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { applyPromoCodeRequest, getItemsRequest } from '../../services/fakeApi'
 import styles from './products-container.module.css'
 import { Product } from './product'
@@ -8,13 +9,13 @@ import { PromoButton } from '../../ui/promo-button/promo-button'
 import { Loader } from '../../ui/loader/loader'
 
 import { DiscountContext, TotalCostContext } from '../../services/appContext'
-import { DataContext, PromoContext } from '../../services/productsContext'
+import { PromoContext } from '../../services/productsContext'
 
 export const ProductsContainer = () => {
     const { setTotalPrice } = useContext(TotalCostContext)
     const { setDiscount } = useContext(DiscountContext)
 
-    const [data, setData] = useState([])
+    const items = useSelector((store) => store.cart.items)
     const [promo, setPromo] = useState('')
 
     const [itemsRequest, setItemsRequest] = useState(false)
@@ -28,7 +29,8 @@ export const ProductsContainer = () => {
         getItemsRequest()
             .then((res) => {
                 if (res && res.success) {
-                    setData(res.data)
+                    console.log(res)
+                    // const items = useSelector(store => store.cart.items);
                     setItemsRequest(false)
                 }
             })
@@ -40,9 +42,9 @@ export const ProductsContainer = () => {
 
     useEffect(() => {
         let total = 0
-        data.map((item) => (total += item.price * item.qty))
+        items.map((item) => (total += item.price * item.qty))
         setTotalPrice(total)
-    }, [data, setTotalPrice])
+    }, [items, setTotalPrice])
 
     const applyPromoCode = useCallback(() => {
         const inputValue = inputRef.current.value
@@ -71,11 +73,11 @@ export const ProductsContainer = () => {
         return itemsRequest ? (
             <Loader size="large" />
         ) : (
-            data.map((item, index) => {
+            items.map((item, index) => {
                 return <Product key={index} {...item} />
             })
         )
-    }, [itemsRequest, data])
+    }, [itemsRequest, items])
 
     const promoCodeStatus = useMemo(() => {
         return promoFailed ? (
@@ -91,32 +93,30 @@ export const ProductsContainer = () => {
 
     return (
         <div className={`${styles.container}`}>
-            <DataContext.Provider value={{ data, setData }}>
-                <PromoContext.Provider value={{ promo, setPromo }}>
-                    {content}
-                    <div className={styles.promo}>
-                        <div className={styles.inputWithBtn}>
-                            <Input
-                                type="text"
-                                placeholder="Введите промокод"
-                                extraClass={styles.input}
-                                inputWithBtn={true}
-                                inputRef={inputRef}
-                            />
-                            <MainButton
-                                type="button"
-                                extraClass={styles.promo_button}
-                                inputButton={true}
-                                onClick={applyPromoCode}
-                            >
-                                {promoRequest ? <Loader size="small" inverse={true} /> : 'Применить'}
-                            </MainButton>
-                        </div>
-                        {promo && <PromoButton extraClass={styles.promocode}>{promo}</PromoButton>}
+            <PromoContext.Provider value={{ promo, setPromo }}>
+                {content}
+                <div className={styles.promo}>
+                    <div className={styles.inputWithBtn}>
+                        <Input
+                            type="text"
+                            placeholder="Введите промокод"
+                            extraClass={styles.input}
+                            inputWithBtn={true}
+                            inputRef={inputRef}
+                        />
+                        <MainButton
+                            type="button"
+                            extraClass={styles.promo_button}
+                            inputButton={true}
+                            onClick={applyPromoCode}
+                        >
+                            {promoRequest ? <Loader size="small" inverse={true} /> : 'Применить'}
+                        </MainButton>
                     </div>
-                    {promoCodeStatus}
-                </PromoContext.Provider>
-            </DataContext.Provider>
+                    {promo && <PromoButton extraClass={styles.promocode}>{promo}</PromoButton>}
+                </div>
+                {promoCodeStatus}
+            </PromoContext.Provider>
         </div>
     )
 }

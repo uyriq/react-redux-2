@@ -1,27 +1,31 @@
 import React, { useContext, useMemo } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { AmountButton } from '../../ui/amount-button/amount-button'
 import { DeleteButton } from '../../ui/delete-button/delete-button'
 import styles from './product.module.css'
+import { DELETE_ITEM, INCREASE_ITEM, DECREASE_ITEM } from '../../services/actions/cart'
 
 import { DiscountContext, TotalCostContext } from '../../services/appContext'
-import { DataContext } from '../../services/productsContext'
+// import { DataContext } from '../../services/productsContext';
 
-export function Product({ src, id, text, qty, price }) {
+export const Product = ({ src, id, text, qty, price }) => {
     const { totalPrice, setTotalPrice } = useContext(TotalCostContext)
     const { discount } = useContext(DiscountContext)
-    const { data, setData } = useContext(DataContext)
+    const items = useSelector((store) => store.cart.items)
+    const dispatch = useDispatch()
 
     const discountedPrice = useMemo(() => ((price - price * (discount / 100)) * qty).toFixed(0), [discount, price, qty])
 
-    const onDelete = () => {
-        setData(data.filter((item) => item.id !== id))
+    const onDelete = (id = id) => {
+        // Отправляем экшен
+        dispatch({ type: DELETE_ITEM, id: id })
     }
 
-    const decrease = () => {
+    const decrease = (id = id) => {
         if (qty === 1) {
             onDelete()
         } else {
-            setTotalPrice(totalPrice - price)
+            /* setTotalPrice(totalPrice - price)
             const newData = data.map((item) => {
                 if (item.id === id) {
                     item.qty -= 1
@@ -29,20 +33,22 @@ export function Product({ src, id, text, qty, price }) {
                 }
                 return item
             })
-            setData(newData)
+            setData(newData) */
+            dispatch({ type: DECREASE_ITEM, id: id })
         }
     }
 
-    const increase = () => {
+    const increase = (id = id) => {
         setTotalPrice(totalPrice + price)
-        const newData = data.map((item) => {
+        /*         const newData = data.map((item) => {
             if (item.id === id) {
                 item.qty += 1
                 return item
             }
             return item
         })
-        setData(newData)
+        setData(newData) */
+        dispatch({ type: INCREASE_ITEM, id: id })
     }
 
     return (
