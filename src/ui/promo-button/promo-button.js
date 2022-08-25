@@ -1,17 +1,16 @@
 import React, { useContext } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { CANCEL_PROMO } from '../../services/actions/cart'
 import styles from './promo-button.module.css'
 import closeIcon from '../../images/close.svg'
 
-import { DiscountContext } from '../../services/appContext'
-import { PromoContext } from '../../services/productsContext'
-
 export function PromoButton({ children, extraClass }) {
-    const { setPromo } = useContext(PromoContext)
-    const { setDiscount } = useContext(DiscountContext)
+    const dispatch = useDispatch()
+    //  Воспользуемся хуком useDispatсh и экшеном CANCEL_PROMO для сброса промокода.
+    // После этого нужно избавиться от PromoContext в приложении.
 
     const cancelPromo = () => {
-        setPromo('')
-        setDiscount(0)
+        dispatch({ type: CANCEL_PROMO })
     }
 
     return (

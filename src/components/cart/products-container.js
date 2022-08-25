@@ -8,15 +8,14 @@ import { MainButton } from '../../ui/main-button/main-button'
 import { PromoButton } from '../../ui/promo-button/promo-button'
 import { Loader } from '../../ui/loader/loader'
 
-import { DiscountContext, TotalCostContext } from '../../services/appContext'
-import { PromoContext } from '../../services/productsContext'
-
 export const ProductsContainer = () => {
-    const { setTotalPrice } = useContext(TotalCostContext)
-    const { setDiscount } = useContext(DiscountContext)
-
+    const totalPrice = useSelector((store) => store.cart.items.reduce((acc, item) => acc + item.price * item.qty, 0))
+    const discount = useSelector((store) => store.cart.promoDiscount)
+    //   Присвойте результат работы ещё одного хука useSelector переменной discount.
+    // Она должна ссылаться на значение promoDiscount из ключа хранилища cart.
+    const promo = useSelector((store) => store.cart.promoCode)
+    const promoCode = useSelector((store) => store.cart.promoCode)
     const items = useSelector((store) => store.cart.items)
-    const [promo, setPromo] = useState('')
 
     const [itemsRequest, setItemsRequest] = useState(false)
     const [promoFailed, setPromoFailed] = useState(false)
@@ -30,7 +29,6 @@ export const ProductsContainer = () => {
             .then((res) => {
                 if (res && res.success) {
                     console.log(res)
-                    // const items = useSelector(store => store.cart.items);
                     setItemsRequest(false)
                 }
             })
@@ -40,34 +38,24 @@ export const ProductsContainer = () => {
             })
     }, [])
 
-    useEffect(() => {
-        let total = 0
-        items.map((item) => (total += item.price * item.qty))
-        setTotalPrice(total)
-    }, [items, setTotalPrice])
-
     const applyPromoCode = useCallback(() => {
         const inputValue = inputRef.current.value
         setPromoRequest(true)
         applyPromoCodeRequest(inputValue)
             .then((res) => {
                 if (res && res.success) {
-                    setPromo(inputValue)
-                    setDiscount(res.discount)
                     setPromoRequest(false)
                     setPromoFailed(false)
                 } else {
                     setPromoFailed(true)
                     setPromoRequest(false)
-                    setDiscount(0)
-                    setPromo('')
                 }
             })
             .catch((err) => {
                 console.log(err)
                 setPromoRequest(false)
             })
-    }, [setDiscount])
+    }, [discount])
 
     const content = useMemo(() => {
         return itemsRequest ? (
@@ -93,30 +81,28 @@ export const ProductsContainer = () => {
 
     return (
         <div className={`${styles.container}`}>
-            <PromoContext.Provider value={{ promo, setPromo }}>
-                {content}
-                <div className={styles.promo}>
-                    <div className={styles.inputWithBtn}>
-                        <Input
-                            type="text"
-                            placeholder="Введите промокод"
-                            extraClass={styles.input}
-                            inputWithBtn={true}
-                            inputRef={inputRef}
-                        />
-                        <MainButton
-                            type="button"
-                            extraClass={styles.promo_button}
-                            inputButton={true}
-                            onClick={applyPromoCode}
-                        >
-                            {promoRequest ? <Loader size="small" inverse={true} /> : 'Применить'}
-                        </MainButton>
-                    </div>
-                    {promo && <PromoButton extraClass={styles.promocode}>{promo}</PromoButton>}
+            {content}
+            <div className={styles.promo}>
+                <div className={styles.inputWithBtn}>
+                    <Input
+                        type="text"
+                        placeholder="Введите промокод"
+                        extraClass={styles.input}
+                        inputWithBtn={true}
+                        inputRef={inputRef}
+                    />
+                    <MainButton
+                        type="button"
+                        extraClass={styles.promo_button}
+                        inputButton={true}
+                        onClick={applyPromoCode}
+                    >
+                        {promoRequest ? <Loader size="small" inverse={true} /> : 'Применить'}
+                    </MainButton>
                 </div>
-                {promoCodeStatus}
-            </PromoContext.Provider>
+                {promo && <PromoButton extraClass={styles.promocode}>{promo}</PromoButton>}
+            </div>
+            {promoCodeStatus}
         </div>
     )
 }

@@ -5,12 +5,9 @@ import { DeleteButton } from '../../ui/delete-button/delete-button'
 import styles from './product.module.css'
 import { DELETE_ITEM, INCREASE_ITEM, DECREASE_ITEM } from '../../services/actions/cart'
 
-import { DiscountContext, TotalCostContext } from '../../services/appContext'
-// import { DataContext } from '../../services/productsContext';
-
 export const Product = ({ src, id, text, qty, price }) => {
-    const { totalPrice, setTotalPrice } = useContext(TotalCostContext)
-    const { discount } = useContext(DiscountContext)
+    const totalPrice = useSelector((store) => store.cart.items.reduce((acc, item) => acc + item.price * item.qty, 0))
+    const discount = useSelector((store) => store.cart.promoDiscount)
     const items = useSelector((store) => store.cart.items)
     const dispatch = useDispatch()
 

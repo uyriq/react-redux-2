@@ -1,18 +1,15 @@
-import React, { useContext } from 'react';
-import styles from './total-price.module.css';
-
-import { DiscountContext, TotalCostContext } from '../../services/appContext';
+import React, { useContext } from 'react'
+import styles from './total-price.module.css'
+import { useSelector, useDispatch } from 'react-redux'
 
 export const TotalPrice = ({ extraClass }) => {
-  const { totalPrice } = useContext(TotalCostContext);
-  const { discount } = useContext(DiscountContext);
-
-  return (
-    <div className={`${styles.container} ${extraClass}`}>
-      <p className={styles.text}>Итого:</p>
-      <p className={styles.cost}>
-        {`${(totalPrice - totalPrice * (discount / 100)).toFixed(0)} руб.`}
-      </p>
-    </div>
-  );
-};
+    // state => state.cart.items.
+    const totalPrice = useSelector((store) => store.cart.items.reduce((acc, item) => acc + item.price * item.qty, 0))
+    const discount = useSelector((store) => store.cart.promoDiscount)
+    return (
+        <div className={`${styles.container} ${extraClass}`}>
+            <p className={styles.text}>Итого:</p>
+            <p className={styles.cost}>{`${(totalPrice - totalPrice * (discount / 100)).toFixed(0)} руб.`}</p>
+        </div>
+    )
+}
