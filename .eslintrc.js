@@ -13,7 +13,12 @@ module.exports = {
     plugins: ['react', 'prettier'],
     rules: {
         'linebreak-style': 0,
-        'prettier/prettier': ['error'],
+        'prettier/prettier': [
+            'error',
+            {
+                endOfLine: 'auto',
+            },
+        ],
         // Indent with 4 spaces
         indent: ['error', 4],
 
