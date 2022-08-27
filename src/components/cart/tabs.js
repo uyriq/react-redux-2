@@ -13,8 +13,8 @@ export const Tabs = () => {
     const currentTab = useSelector((store) => store.cart.currentTab)
     return (
         <div className={`${styles.tabs}`}>
-            <Tab text="Товары в корзине" value="items" active={'items' === currentTab ? true : false} />
-            <Tab text="Отложенные товары" active={'postponed' === currentTab ? true : false} />
+            <Tab text="Товары в корзине" active={'items' === currentTab} />
+            <Tab text="Отложенные товары" active={'postponed' === currentTab} />
         </div>
     )
 }

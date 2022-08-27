@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { TAB_SWITCH } from '../../services/actions/cart'
 import styles from './tab.module.css'
 
-export const Tab = ({ text, active, onClick: handleClick, value }) => {
+export const Tab = ({ text, active }) => {
     const dispatcher = useDispatch()
 
     const switchTab = () => {
