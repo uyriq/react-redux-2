@@ -4,10 +4,10 @@ import { TAB_SWITCH } from '../../services/actions/cart'
 import styles from './tab.module.css'
 
 export const Tab = ({ text, active }) => {
-    const dispatcher = useDispatch()
+    const dispatch = useDispatch() //тренажер не принимает имя другое чем dispatch!!!
 
     const switchTab = () => {
-        dispatcher({ type: TAB_SWITCH })
+        dispatch({ type: TAB_SWITCH })
     }
     const className = `${styles.tab} ${active ? styles.tab_type_current : ''}`
     return (
